@@ -1,0 +1,17 @@
+//
+//  GJPBTests.swift
+//  GJPBTests
+//
+//  Created by Gan Jianping on 28/2/26.
+//
+
+import Testing
+@testable import GJPB
+
+struct GJPBTests {
+
+    @Test func example() async throws {
+        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    }
+
+}
