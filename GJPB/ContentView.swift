@@ -6,56 +6,39 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Environment(SettingsStore.self) private var settings
+    @Environment(AudioPlayerStore.self) private var audioPlayer
+
+    private var lang: String { settings.language.rawValue }
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView {
+            WebsitesView()
+                .tabItem {
+                    Label(Localizer.text("websites.title", lang: lang), systemImage: "globe")
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+            ArticlesView()
+                .tabItem {
+                    Label(Localizer.text("articles.title", lang: lang), systemImage: "doc.text")
+                }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            ImagesView()
+                .tabItem {
+                    Label(Localizer.text("images.title", lang: lang), systemImage: "photo")
+                }
+
+            MoreView()
+                .tabItem {
+                    Label(Localizer.text("more.title", lang: lang), systemImage: "ellipsis.circle")
+                }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if audioPlayer.hasTrack {
+                AudioPlayerBar()
             }
         }
     }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

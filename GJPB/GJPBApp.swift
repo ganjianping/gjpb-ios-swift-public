@@ -6,27 +6,23 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
 struct GJPBApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @State private var settingsStore = SettingsStore()
+    @State private var audioPlayerStore = AudioPlayerStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(settingsStore)
+                .environment(audioPlayerStore)
+                .environment(AppSettingsService.shared)
+                .preferredColorScheme(settingsStore.theme.colorScheme)
+                .tint(settingsStore.themeColor.color)
+                .task {
+                    await AppSettingsService.shared.fetchIfNeeded()
+                }
         }
-        .modelContainer(sharedModelContainer)
     }
 }
